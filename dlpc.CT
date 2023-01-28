@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="29">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>104</ID>
+      <Description>"LP Modifier Script"</Description>
+      <Options moHideChildren="1" moActivateChildrenAsWell="1"/>
+      <LastState/>
+      <Color>FF0000</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[enable]
+alloc(newmem,$100,duel.dll)
+alloc(_PlayerLP,4)
+alloc(_EnemyLP,4)
+registersymbol(_PlayerLP)
+registersymbol(_EnemyLP)
+label(instant_win_flag)
+
+
+newmem:
+cmp rdx,0
+jne isOpponent
+
+pushf
+movd xmm10,[_PlayerLP]
+movd [rax],xmm10
+xor [rax],ecx
+popf
+jmp originalcode
+
+isOpponent:
+cmp [instant_win_flag],0
+je originalcode
+pushf
+movd xmm12,[_EnemyLP]
+movd [rdx+rax],xmm12
+xor [rdx+rax],ecx
+popf
+
+originalcode:
+mov eax,[rdx+rax]
+xor eax,ecx
+ret
+
+instant_win_flag:
+registersymbol(instant_win_flag)
+db 01
+
+duel.DLL_DuelGetLP+1D:
+jmp newmem
+
+_PlayerLP:
+dd #10000
+_EnemyLP:
+dd #0
+
+[disable]
+duel.DLL_DuelGetLP+1D:
+db 8B 04 02 33 C1
+//mov eax,[rdx+rax]
+//xor eax,ecx
+
+unregistersymbol(instant_win_flag)
+unregistersymbol(_PlayerLP)
+unregistersymbol(_EnemyLP)
+dealloc(newmem)
+dealloc(_PlayerLP)
+dealloc(_EnemyLP)
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>103</Key>
+          </Keys>
+          <Description>LP 10K / 100</Description>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>105</ID>
+          <Description>"Activate LP Modifier?"</Description>
+          <DropDownList ReadOnly="1" DescriptionOnly="1" DisplayValueAsItem="1">1: Yes
+0: No
+</DropDownList>
+          <VariableType>4 Bytes</VariableType>
+          <Address>instant_win_flag</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>107</ID>
+          <Description>"Player LP"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>_PlayerLP</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>106</ID>
+          <Description>"Enemy LP"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>_EnemyLP</Address>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>111</ID>
+      <Description>"High Assessment"</Description>
+      <Options moHideChildren="1"/>
+      <LastState Value="" RealAddress="00000000"/>
+      <Color>FF0000</Color>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>110</ID>
+          <Description>"Make All Cards Prismatic (in duel only)"</Description>
+          <LastState/>
+          <Color>000000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+alloc(newmem,$100,duel.dll)
+
+
+newmem:
+movsxd rax,rcx
+mov [rdx+rax*4],3
+mov eax,3
+ret
+
+DLL_CardRareGetRareByUniqueID+C:
+jmp newmem
+nop
+
+
+[disable]
+DLL_CardRareGetRareByUniqueID+C:
+db 48 63 C1 8B 04 82
+//movsxd  rax,ecx
+//mov eax,[rdx+rax*4]
+
+dealloc(newmem)
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>102</Key>
+              </Keys>
+              <Description>Cards Prismatic</Description>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>109</ID>
+          <Description>"Cards Played"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>{ Game   : dlpc.exe
+  Version: 
+  Date   : 2018-12-02
+  Author : Fajar PN
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(HighAssessment,duel.dll,0F B7 02 48 8D 49 04 48 8D 52 02) // should be unique
+alloc(newmem,$1000,"duel.dll"+6DE470)
+
+label(code)
+label(return)
+
+newmem:
+mov [rdx],#5
+
+code:
+  movzx eax,word ptr [rdx]
+  lea rcx,[rcx+04]
+  jmp return
+
+HighAssessment:
+  jmp newmem
+  nop
+  nop
+return:
+
+registersymbol(HighAssessment)
+
+[DISABLE]
+
+HighAssessment:
+  db 0F B7 02 48 8D 49 04
+
+unregistersymbol(HighAssessment)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: "duel.dll"+6DE470
+
+"duel.dll"+6DE446: 88 44 0A FF                       -  mov [rdx+rcx-01],al
+"duel.dll"+6DE44A: 49 3B C8                          -  cmp rcx,r8
+"duel.dll"+6DE44D: 75 F1                             -  jne duel.dll+6DE440
+"duel.dll"+6DE44F: 49 6B C2 7A                       -  imul rax,r10,7A
+"duel.dll"+6DE453: 49 8D 93 D8 00 00 00              -  lea rdx,[r11+000000D8]
+"duel.dll"+6DE45A: 41 B8 3D 00 00 00                 -  mov r8d,0000003D
+"duel.dll"+6DE460: 48 03 D0                          -  add rdx,rax
+"duel.dll"+6DE463: 45 89 41 2C                       -  mov [r9+2C],r8d
+"duel.dll"+6DE467: 49 8D 49 30                       -  lea rcx,[r9+30]
+"duel.dll"+6DE46B: 0F 1F 44 00 00                    -  nop [rax+rax+00]
+// ---------- INJECTING HERE ----------
+"duel.dll"+6DE470: 0F B7 02                          -  movzx eax,word ptr [rdx]
+"duel.dll"+6DE473: 48 8D 49 04                       -  lea rcx,[rcx+04]
+// ---------- DONE INJECTING  ----------
+"duel.dll"+6DE477: 48 8D 52 02                       -  lea rdx,[rdx+02]
+"duel.dll"+6DE47B: 89 41 FC                          -  mov [rcx-04],eax
+"duel.dll"+6DE47E: 49 FF C8                          -  dec r8
+"duel.dll"+6DE481: 75 ED                             -  jne duel.dll+6DE470
+"duel.dll"+6DE483: 49 8D 8B CC 01 00 00              -  lea rcx,[r11+000001CC]
+"duel.dll"+6DE48A: 49 8D 91 28 01 00 00              -  lea rdx,[r9+00000128]
+"duel.dll"+6DE491: 41 C7 81 24 01 00 00 01 00 00 00  -  mov [r9+00000124],00000001
+"duel.dll"+6DE49C: 4A 8D 0C 91                       -  lea rcx,[rcx+r10*4]
+"duel.dll"+6DE4A0: 48 2B D1                          -  sub rdx,rcx
+"duel.dll"+6DE4A3: 4C 8D 41 04                       -  lea r8,[rcx+04]
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>101</Key>
+              </Keys>
+              <Description>Cards Played</Description>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>108</ID>
+          <Description>"Prismatic Bonus"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>{ Game   : dlpc.exe
+  Version: 
+  Date   : 2018-12-02
+  Author : Fajar PN
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(PrismaticBonus,duel.dll,88 4C 02 FF 49 3B C0 75 F1 B8) // should be unique
+alloc(newmem,$1000,"duel.dll"+6DE4F6)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov [rdx+rax-01],#4294967295
+  cmp rax,r8
+  jmp return
+
+PrismaticBonus:
+  jmp newmem
+  nop
+  nop
+return:
+registersymbol(PrismaticBonus)
+
+[DISABLE]
+
+PrismaticBonus:
+  db 88 4C 02 FF 49 3B C0
+
+unregistersymbol(PrismaticBonus)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: "duel.dll"+6DE4F6
+
+"duel.dll"+6DE4C3: 49 8D 43 08                       -  lea rax,[r11+08]
+"duel.dll"+6DE4C7: 49 8D 91 30 01 00 00              -  lea rdx,[r9+00000130]
+"duel.dll"+6DE4CE: 49 03 C2                          -  add rax,r10
+"duel.dll"+6DE4D1: 41 C7 81 2C 01 00 00 10 00 00 00  -  mov [r9+0000012C],00000010
+"duel.dll"+6DE4DC: 4C 8D 40 40                       -  lea r8,[rax+40]
+"duel.dll"+6DE4E0: 48 2B D0                          -  sub rdx,rax
+"duel.dll"+6DE4E3: 0F 1F 40 00                       -  nop [rax+00]
+"duel.dll"+6DE4E7: 66 0F 1F 84 00 00 00 00 00        -  nop [rax+rax+00000000]
+"duel.dll"+6DE4F0: 0F B6 08                          -  movzx ecx,byte ptr [rax]
+"duel.dll"+6DE4F3: 48 FF C0                          -  inc rax
+// ---------- INJECTING HERE ----------
+"duel.dll"+6DE4F6: 88 4C 02 FF                       -  mov [rdx+rax-01],cl
+"duel.dll"+6DE4FA: 49 3B C0                          -  cmp rax,r8
+// ---------- DONE INJECTING  ----------
+"duel.dll"+6DE4FD: 75 F1                             -  jne duel.dll+6DE4F0
+"duel.dll"+6DE4FF: B8 5C 00 00 00                    -  mov eax,0000005C
+"duel.dll"+6DE504: C3                                -  ret 
+"duel.dll"+6DE505: CC                                -  int 3 
+"duel.dll"+6DE506: CC                                -  int 3 
+"duel.dll"+6DE507: CC                                -  int 3 
+"duel.dll"+6DE508: CC                                -  int 3 
+"duel.dll"+6DE509: CC                                -  int 3 
+"duel.dll"+6DE50A: CC                                -  int 3 
+"duel.dll"+6DE50B: CC                                -  int 3 
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>100</Key>
+              </Keys>
+              <Description>Prismatic Bonus</Description>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>223</ID>
+      <Description>"Damage -10K"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>{ Game   : dlpc.exe
+  Version: 
+  Date   : 2020-03-19
+  Author : scw-d
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(INJECT,duel.dll,42 89 44 17 64) // should be unique
+alloc(newmem,$1000,"duel.dll"+2AAA1F)
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov [rdi+r10+64],(int)10000
+  jmp return
+
+INJECT:
+  jmp newmem
+return:
+registersymbol(INJECT)
+
+
+[DISABLE]
+
+INJECT:
+  db 42 89 44 17 64
+
+unregistersymbol(INJECT)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: "duel.dll"+2AAA1F
+
+"duel.dll"+2AA9F1: 44 89 40 18              -  mov [rax+18],r8d
+"duel.dll"+2AA9F5: 4C 8B 15 C4 4A 69 00     -  mov r10,[duel.dll+93F4C0]
+"duel.dll"+2AA9FC: BB FF E0 F5 05           -  mov ebx,05F5E0FF
+"duel.dll"+2AAA01: 49 63 CB                 -  movsxd  rcx,r11d
+"duel.dll"+2AAA04: 48 8D 3C CD 00 00 00 00  -  lea rdi,[rcx*8+00000000]
+"duel.dll"+2AAA0C: 44 3B C3                 -  cmp r8d,ebx
+"duel.dll"+2AAA0F: 41 8B C0                 -  mov eax,r8d
+"duel.dll"+2AAA12: 0F 4F C3                 -  cmovg eax,ebx
+"duel.dll"+2AAA15: 48 89 7C 24 40           -  mov [rsp+40],rdi
+"duel.dll"+2AAA1A: BB 01 00 00 00           -  mov ebx,00000001
+// ---------- INJECTING HERE ----------
+"duel.dll"+2AAA1F: 42 89 44 17 64           -  mov [rdi+r10+64],eax
+// ---------- DONE INJECTING  ----------
+"duel.dll"+2AAA24: 0F B6 02                 -  movzx eax,byte ptr [rdx]
+"duel.dll"+2AAA27: 41 88 44 CA 68           -  mov [r10+rcx*8+68],al
+"duel.dll"+2AAA2C: 0F B6 42 01              -  movzx eax,byte ptr [rdx+01]
+"duel.dll"+2AAA30: 42 88 44 17 69           -  mov [rdi+r10+69],al
+"duel.dll"+2AAA35: 4D 85 C9                 -  test r9,r9
+"duel.dll"+2AAA38: 75 11                    -  jne duel.dll+2AAA4B
+"duel.dll"+2AAA3A: 8B C3                    -  mov eax,ebx
+"duel.dll"+2AAA3C: 2A 02                    -  sub al,[rdx]
+"duel.dll"+2AAA3E: 42 C6 44 17 6B 05        -  mov byte ptr [rdi+r10+6B],05
+"duel.dll"+2AAA44: 42 88 44 17 6A           -  mov [rdi+r10+6A],al
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>96</Key>
+          </Keys>
+          <Description>Damage -10K</Description>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>212</ID>
+      <Description>"Auto Duel"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>{ Game   : dlpc.exe
+  Version: 
+  Date   : 2020-03-04
+  Author : Yojiro
+
+  This script does Auto Duel
+}
+
+define(address,"duel.dll"+76ED6A)
+define(bytes,42 89 54 80 08)
+
+[ENABLE]
+
+assert(address,bytes)
+alloc(newmem,$1000,"duel.dll"+76ED6A)
+
+label(code)
+label(return)
+
+newmem:
+  mov [rax+r8*4+08],#1
+
+code:
+//  mov [rax+r8*4+08],edx
+  jmp return
+
+address:
+  jmp newmem
+return:
+
+[DISABLE]
+
+address:
+  db bytes
+  // mov [rax+r8*4+08],edx
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: "duel.dll"+767A3A
+
+"duel.dll"+767A28: CC                    -  int 3 
+"duel.dll"+767A29: CC                    -  int 3 
+"duel.dll"+767A2A: CC                    -  int 3 
+"duel.dll"+767A2B: CC                    -  int 3 
+"duel.dll"+767A2C: CC                    -  int 3 
+"duel.dll"+767A2D: CC                    -  int 3 
+"duel.dll"+767A2E: CC                    -  int 3 
+"duel.dll"+767A2F: CC                    -  int 3 
+"duel.dll"+767A30: 48 8B 05 61 AA 1C 00  -  mov rax,[duel.dll+932498]
+"duel.dll"+767A37: 4C 63 C1              -  movsxd  r8,ecx
+// ---------- INJECTING HERE ----------
+"duel.dll"+767A3A: 42 89 54 80 08        -  mov [rax+r8*4+08],edx
+// ---------- DONE INJECTING  ----------
+"duel.dll"+767A3F: C3                    -  ret 
+"duel.dll"+767A40: 48 63 D1              -  movsxd  rdx,ecx
+"duel.dll"+767A43: 48 8B 0D 4E AA 1C 00  -  mov rcx,[duel.dll+932498]
+"duel.dll"+767A4A: 33 C0                 -  xor eax,eax
+"duel.dll"+767A4C: 39 44 91 08           -  cmp [rcx+rdx*4+08],eax
+"duel.dll"+767A50: 0F 94 C0              -  sete al
+"duel.dll"+767A53: C3                    -  ret 
+"duel.dll"+767A54: CC                    -  int 3 
+"duel.dll"+767A55: CC                    -  int 3 
+"duel.dll"+767A56: CC                    -  int 3 
+}
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
